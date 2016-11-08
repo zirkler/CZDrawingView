@@ -66,6 +66,11 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
+    public boolean isErasable() {
+        return true;
+    }
+
+    @Override
     public void draw(Canvas canvas) {
         canvas.drawPath(mPath, mEraserPaint);
     }

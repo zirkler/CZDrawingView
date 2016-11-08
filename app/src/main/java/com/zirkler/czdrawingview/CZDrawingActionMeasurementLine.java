@@ -86,6 +86,11 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
     }
 
     @Override
+    public boolean isErasable() {
+        return false;
+    }
+
+    @Override
     public void draw(Canvas canvas) {
         // draw the line
         canvas.drawPath(mPath, mPaint);

@@ -114,12 +114,22 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
         // Draw existing drawings
         for (int i = 0; i < mDrawnStuff.size(); i++) {
             CZIDrawingAction drawingAction = mDrawnStuff.get(i);
-            drawingAction.draw(mCacheCanvas);
+            if (drawingAction.isErasable()) {
+                drawingAction.draw(mCacheCanvas);
+            }
         }
 
         // Draw the current (not yet finished) path.
         if (mCurrentDrawingAction != null) {
             mCurrentDrawingAction.draw(mCacheCanvas);
+        }
+
+        // Redraw non-erasable stuff
+        for (int i = 0; i < mDrawnStuff.size(); i++) {
+            CZIDrawingAction drawingAction = mDrawnStuff.get(i);
+            if (!drawingAction.isErasable()) {
+                drawingAction.draw(mCacheCanvas);
+            }
         }
 
         if (mBitmapImage != null) {

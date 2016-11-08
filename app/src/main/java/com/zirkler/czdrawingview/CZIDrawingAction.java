@@ -21,4 +21,6 @@ public interface CZIDrawingAction {
     public Paint getPaint();
 
     public void setPaint(Paint paint);
+
+    public boolean isErasable();
 }
