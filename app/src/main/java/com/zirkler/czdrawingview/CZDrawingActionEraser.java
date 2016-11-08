@@ -15,15 +15,20 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     float mX;
     float mY;
 
-    public CZDrawingActionEraser(Context context) {
+    public CZDrawingActionEraser(Context context, Paint paint) {
         mContext = context;
         mPath = new Path();
-        mEraserPaint = new Paint();
-        mEraserPaint.setStyle(Paint.Style.STROKE);
-        mEraserPaint.setAntiAlias(true);
-        mEraserPaint.setStrokeWidth(40);
-        mEraserPaint.setAlpha(0xFF);
-        mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+
+        if (paint == null) {
+            mEraserPaint = new Paint();
+            mEraserPaint.setStyle(Paint.Style.STROKE);
+            mEraserPaint.setAntiAlias(true);
+            mEraserPaint.setStrokeWidth(40);
+            mEraserPaint.setAlpha(0xFF);
+            mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        } else {
+            mEraserPaint = paint;
+        }
     }
 
     @Override
@@ -51,12 +56,22 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public void draw(Canvas canvas, Canvas cacheCanvas) {
-        cacheCanvas.drawPath(mPath, mEraserPaint);
+    public Paint getPaint() {
+        return mEraserPaint;
     }
 
     @Override
-    public CZIDrawingAction createInstance(Context context) {
-        return new CZDrawingActionEraser(context);
+    public void setPaint(Paint paint) {
+        mEraserPaint = paint;
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        canvas.drawPath(mPath, mEraserPaint);
+    }
+
+    @Override
+    public CZIDrawingAction createInstance(Context context, Paint paint) {
+        return new CZDrawingActionEraser(context, paint);
     }
 }

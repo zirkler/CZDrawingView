@@ -56,13 +56,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_freehand_drawing) {
-            mDrawingView.setCurrentDrawingAction(new CZDrawingActionFreehand(this));
+            mDrawingView.setCurrentDrawingAction(new CZDrawingActionFreehand(this, null));
         } else if (item.getItemId() == R.id.action_eraser) {
-            mDrawingView.setCurrentDrawingAction(new CZDrawingActionEraser(this));
+            mDrawingView.setCurrentDrawingAction(new CZDrawingActionEraser(this, null));
         } else if (item.getItemId() == R.id.action_pick_background) {
             EasyImage.openChooserWithDocuments(this, "Choose Background Image", 0);
         } else if (item.getItemId() == R.id.action_measurement_line) {
-            mDrawingView.setCurrentDrawingAction(new CZDrawingActionMeasurementLine(this));
+            mDrawingView.setCurrentDrawingAction(new CZDrawingActionMeasurementLine(this, null));
         }
         return true;
     }

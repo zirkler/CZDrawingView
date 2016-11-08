@@ -10,20 +10,26 @@ public class CZDrawingActionFreehand implements CZIDrawingAction {
 
     Path mPath;
     Context mContext;
-    Paint mRedPaint;
+    Paint mPaint;
     float mX;
     float mY;
 
-    public CZDrawingActionFreehand(Context context) {
+    public CZDrawingActionFreehand(Context context, Paint paint) {
         mContext = context;
-        mRedPaint = new Paint();
         mPath = new Path();
-        mRedPaint.setAntiAlias(true);
-        mRedPaint.setColor(Color.RED);
-        mRedPaint.setStyle(Paint.Style.STROKE);
-        mRedPaint.setStrokeJoin(Paint.Join.ROUND);
-        mRedPaint.setStrokeCap(Paint.Cap.ROUND);
-        mRedPaint.setStrokeWidth(CZDrawingView.dip2pixel(mContext, 5));
+
+        // If there isn't a paint provided, create a default paint.
+        if (paint == null) {
+            mPaint = new Paint();
+            mPaint.setAntiAlias(true);
+            mPaint.setColor(Color.RED);
+            mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setStrokeJoin(Paint.Join.ROUND);
+            mPaint.setStrokeCap(Paint.Cap.ROUND);
+            mPaint.setStrokeWidth(CZDrawingView.dip2pixel(mContext, 5));
+        } else {
+            mPaint = paint;
+        }
     }
 
 
@@ -52,12 +58,22 @@ public class CZDrawingActionFreehand implements CZIDrawingAction {
     }
 
     @Override
-    public void draw(Canvas canvas, Canvas cacheCanvas) {
-        cacheCanvas.drawPath(mPath, mRedPaint);
+    public Paint getPaint() {
+        return null;
     }
 
     @Override
-    public CZIDrawingAction createInstance(Context context) {
-        return new CZDrawingActionFreehand(context);
+    public void setPaint(Paint paint) {
+        mPaint = paint;
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        canvas.drawPath(mPath, mPaint);
+    }
+
+    @Override
+    public CZIDrawingAction createInstance(Context context, Paint paint) {
+        return new CZDrawingActionFreehand(context, paint);
     }
 }

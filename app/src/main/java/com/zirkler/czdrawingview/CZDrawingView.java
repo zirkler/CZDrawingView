@@ -72,7 +72,7 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
         setOnTouchListener(this);
         mDrawnStuff = new ArrayList<>();
         mUndoneStuff = new ArrayList<>();
-        mCurrentDrawingAction = new CZDrawingActionFreehand(getContext());
+        mCurrentDrawingAction = new CZDrawingActionFreehand(getContext(), null);
     }
 
     private void touch_start(float x, float y) {
@@ -94,8 +94,13 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
             if (mUndoneStuff.size() > 0) {
                 mUndoneStuff.clear();
             }
+
+            // The current drawingAction finished, add it to the drawn stuff list
             mDrawnStuff.add(mCurrentDrawingAction);
-            mCurrentDrawingAction = mCurrentDrawingAction.createInstance(getContext());
+
+            // So the current drawingAction finished, when the user touches the drawingView the next time,
+            // we start drawing with a new instance of the same drawingAction.
+            mCurrentDrawingAction = mCurrentDrawingAction.createInstance(getContext(), mCurrentDrawingAction.getPaint());
         }
         invalidate();
     }
@@ -109,12 +114,12 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
         // Draw existing drawings
         for (int i = 0; i < mDrawnStuff.size(); i++) {
             CZIDrawingAction drawingAction = mDrawnStuff.get(i);
-            drawingAction.draw(canvas, mCacheCanvas);
+            drawingAction.draw(mCacheCanvas);
         }
 
         // Draw the current (not yet finished) path.
         if (mCurrentDrawingAction != null) {
-            mCurrentDrawingAction.draw(canvas, mCacheCanvas);
+            mCurrentDrawingAction.draw(mCacheCanvas);
         }
 
         if (mBitmapImage != null) {

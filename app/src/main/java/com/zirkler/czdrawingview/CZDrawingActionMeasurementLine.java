@@ -5,33 +5,41 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RectF;
 
 public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
 
     Context mContext;
-    Paint mRedPaint;
-    float mXStart;
-    float mYStart;
-    float mXEnd;
-    float mYEnd;
-    Path mPath;
+    float mXStart = -1;
+    float mYStart = -1;
+    float mXEnd = -1;
+    float mYEnd = -1;
+    private Path mPath;
+    private Paint mPaint;
     private Paint mTextPaint;
 
-    public CZDrawingActionMeasurementLine(Context context) {
+    public CZDrawingActionMeasurementLine(Context context, Paint paint) {
         mContext = context;
-        mRedPaint = new Paint();
         mPath = new Path();
-        mRedPaint.setAntiAlias(true);
-        mRedPaint.setColor(Color.CYAN);
-        mRedPaint.setStyle(Paint.Style.STROKE);
-        mRedPaint.setStrokeJoin(Paint.Join.ROUND);
-        mRedPaint.setStrokeCap(Paint.Cap.ROUND);
-        mRedPaint.setStrokeWidth(CZDrawingView.dip2pixel(mContext, 5));
+
+        // If there isn't a paint provided, create a default paint.
+        if (paint == null) {
+            mPaint = new Paint();
+            mPaint.setAntiAlias(true);
+            mPaint.setColor(Color.CYAN);
+            mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            mPaint.setStrokeJoin(Paint.Join.ROUND);
+            mPaint.setStrokeCap(Paint.Cap.ROUND);
+            mPaint.setStrokeWidth(CZDrawingView.dip2pixel(mContext, 5));
+
+        } else {
+            mPaint = paint;
+        }
 
         mTextPaint = new Paint();
         mTextPaint.setAntiAlias(true);
         mTextPaint.setColor(Color.BLACK);
-        mTextPaint.setTextSize(60); // TODO: respect display density
+        mTextPaint.setTextSize(CZDrawingView.dip2pixel(mContext, 15));
     }
 
     @Override
@@ -68,21 +76,43 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
     }
 
     @Override
-    public void draw(Canvas canvas, Canvas cacheCanvas) {
-        // draw the line
-        cacheCanvas.drawPath(mPath, mRedPaint);
-
-        // draw the text
-        String text = "130cm";
-        float textWidth = mTextPaint.measureText(text, 0, text.length());
-        float textPosX = (mXStart + mXEnd) / 2;
-        textPosX = (textPosX - (textWidth / 2));
-        float textPosY = (mYStart + mYEnd) / 2;
-        cacheCanvas.drawText(text, textPosX, textPosY, mTextPaint);
+    public Paint getPaint() {
+        return mPaint;
     }
 
     @Override
-    public CZIDrawingAction createInstance(Context context) {
-        return new CZDrawingActionMeasurementLine(context);
+    public void setPaint(Paint paint) {
+        mPaint = paint;
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        // draw the line
+        canvas.drawPath(mPath, mPaint);
+
+        if (mXEnd != -1) {
+            // draw text and rectangle in the middle of the line
+            String text = "130cm";
+            float textWidth = mTextPaint.measureText(text, 0, text.length());
+            float textHeight = mTextPaint.getTextSize();
+            float textPosX = (mXStart + mXEnd) / 2;
+            textPosX = (textPosX - (textWidth / 2));
+            float textPosY = (mYStart + mYEnd) / 2;
+
+
+            // draw a rectangle around the text
+            RectF rect = new RectF(textPosX,
+                    (textPosY - textHeight) + 8, // just some manual adjustment to center the rect around the text
+                    textPosX + textWidth,
+                    textPosY);
+            canvas.drawRect(rect, mPaint);
+
+            canvas.drawText(text, textPosX, textPosY, mTextPaint);
+        }
+    }
+
+    @Override
+    public CZIDrawingAction createInstance(Context context, Paint paint) {
+        return new CZDrawingActionMeasurementLine(context, paint);
     }
 }
