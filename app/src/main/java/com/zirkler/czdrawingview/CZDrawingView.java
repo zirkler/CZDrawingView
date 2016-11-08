@@ -20,6 +20,12 @@ import java.util.List;
 public class CZDrawingView extends ImageView implements View.OnTouchListener {
 
     private static final String TAG = CZDrawingView.class.getSimpleName();
+
+    // The CLICK_CANCEL_DISTANCE describes how far the user have to move away
+    // his finger after a touch_down event to cancel the click. This value is in fixel.
+    public static int CLICK_CANCEL_DISTANCE = 20;
+
+
     private Bitmap mScribble, mBitmapImage;
     private Canvas mCacheCanvas;
     private RectF mCurrentRect;
@@ -28,6 +34,10 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
     private CZIDrawingAction mCurrentDrawingAction;
     private List<CZIDrawingAction> mDrawnStuff;
     private List<CZIDrawingAction> mUndoneStuff;
+    private CZIDrawingAction touchedItem;
+    private OnItemClickCallback mClickCallback;
+    private float touchDownSourceY = -1;
+    private float touchDownSourceX = -1;
 
     public CZDrawingView(Context context) {
         super(context);
@@ -75,43 +85,13 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
         mCurrentDrawingAction = new CZDrawingActionFreehand(getContext(), null);
     }
 
-    private void touch_start(float x, float y) {
-        mCurrentDrawingAction.touchStart(x, y);
-        invalidate();
-    }
-
-    private void touch_move(float x, float y) {
-        mCurrentDrawingAction.touchMove(x, y);
-        invalidate();
-    }
-
-    private void touch_up(float x, float y) {
-        if (x != -1 && y != -1) {
-            mCurrentDrawingAction.touchUp(x, y);
-
-            // If we have drawn after a undo happened, clear the items from the undone list,
-            // so we don't mix up the undo/redo functionality.
-            if (mUndoneStuff.size() > 0) {
-                mUndoneStuff.clear();
-            }
-
-            // The current drawingAction finished, add it to the drawn stuff list
-            mDrawnStuff.add(mCurrentDrawingAction);
-
-            // So the current drawingAction finished, when the user touches the drawingView the next time,
-            // we start drawing with a new instance of the same drawingAction.
-            mCurrentDrawingAction = mCurrentDrawingAction.createInstance(getContext(), mCurrentDrawingAction.getPaint());
-        }
-        invalidate();
-    }
-
     @Override
     protected void onDraw(Canvas canvas) {
         // initially clear the canvas
         canvas.drawColor(Color.WHITE);
         mCacheCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
-        // Draw existing drawings
+        // Draw existing drawings, including easin
         for (int i = 0; i < mDrawnStuff.size(); i++) {
             CZIDrawingAction drawingAction = mDrawnStuff.get(i);
             if (drawingAction.isErasable()) {
@@ -124,7 +104,7 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
             mCurrentDrawingAction.draw(mCacheCanvas);
         }
 
-        // Redraw non-erasable stuff
+        // Draw non-erasable stuff
         for (int i = 0; i < mDrawnStuff.size(); i++) {
             CZIDrawingAction drawingAction = mDrawnStuff.get(i);
             if (!drawingAction.isErasable()) {
@@ -162,18 +142,83 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
         float x = event.getX();
         float y = event.getY();
 
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touch_start(x, y);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touch_move(x, y);
-                break;
-            case MotionEvent.ACTION_UP:
-                touch_up(x, y);
-                break;
+        // TOUCH DOWN
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            touchDownSourceX = x;
+            touchDownSourceY = y;
+
+            // check if any drawn item got touched, starting from the end to respect drawn order
+            for (int i = mDrawnStuff.size() - 1; i >= 0 ; i--) {
+                CZIDrawingAction item = mDrawnStuff.get(i);
+                if (item.checkBounds(x, y)) {
+                    touchedItem = item;
+                    break;
+                }
+            }
+
+            if (touchedItem != null) {
+                // user touched item
+            } else {
+                // Normal touch_down, user just started drawing
+                mCurrentDrawingAction.touchStart(x, y);
+                invalidate();
+            }
         }
+
+        // TOUCH MOVE
+        if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            if (touchedItem != null) {
+                // user touched item and then moved
+                // if user moved away from its touched item, he likes to draw, with the touched item as origin
+                if (!touchedItem.checkBounds(x, y)) {
+                    mCurrentDrawingAction.touchStart(touchDownSourceX, touchDownSourceY);
+                    mCurrentDrawingAction.touchMove(x, y);
+                    touchedItem = null;
+                }
+            } else {
+                // Normal movement, user is currently drawing
+                mCurrentDrawingAction.touchMove(x, y);
+            }
+            invalidate();
+        }
+
+        // TOUCH UP
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (touchedItem != null) {
+                // Check if user canceled his click by moving away from the click source
+                if (touchedItem.checkBounds(x, y)) {
+                    if (mClickCallback != null) {
+                        mClickCallback.onItemClicked(touchedItem);
+                    }
+                }
+            } else {
+                // Normal touch up, user just ended his drawing
+                touch_up(x, y);
+            }
+            touchedItem = null;
+        }
+
         return true;
+    }
+
+    private void touch_up(float x, float y) {
+        if (x != -1 && y != -1) {
+            mCurrentDrawingAction.touchUp(x, y);
+
+            // If we have drawn after a undo happened, clear the items from the undone list,
+            // so we don't mix up the undo/redo functionality.
+            if (mUndoneStuff.size() > 0) {
+                mUndoneStuff.clear();
+            }
+
+            // The current drawingAction finished, add it to the drawn stuff list
+            mDrawnStuff.add(mCurrentDrawingAction);
+
+            // So the current drawingAction finished, when the user touches the drawingView the next time,
+            // we start drawing with a new instance of the same drawingAction.
+            mCurrentDrawingAction = mCurrentDrawingAction.createInstance(getContext(), mCurrentDrawingAction.getPaint());
+        }
+        invalidate();
     }
 
     @Override
@@ -204,5 +249,17 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
 
     public void setCurrentDrawingAction(CZIDrawingAction mCurrentDrawingAction) {
         this.mCurrentDrawingAction = mCurrentDrawingAction;
+    }
+
+    public OnItemClickCallback getmClickCallback() {
+        return mClickCallback;
+    }
+
+    public void setClickCallback(OnItemClickCallback mClickCallback) {
+        this.mClickCallback = mClickCallback;
+    }
+
+    public interface OnItemClickCallback {
+        public void onItemClicked(CZIDrawingAction item);
     }
 }

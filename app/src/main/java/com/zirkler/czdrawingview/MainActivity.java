@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -29,6 +30,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mDrawingView = (CZDrawingView) findViewById(R.id.drawingView);
+        mDrawingView.setClickCallback(new CZDrawingView.OnItemClickCallback() {
+            @Override
+            public void onItemClicked(CZIDrawingAction item) {
+                Toast.makeText(MainActivity.this, "User Clicked on a clickable drawing item :)", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
         mUndo        = (Button) findViewById(R.id.bttUndo);
         mRedo        = (Button) findViewById(R.id.bttRedo);
 
@@ -38,13 +47,13 @@ public class MainActivity extends AppCompatActivity {
                 mDrawingView.undo();
             }
         });
-
         mRedo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDrawingView.redo();
             }
         });
+
     }
 
     @Override

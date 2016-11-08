@@ -23,4 +23,7 @@ public interface CZIDrawingAction {
     public void setPaint(Paint paint);
 
     public boolean isErasable();
+
+    public boolean checkBounds(float x, float y);
+
 }

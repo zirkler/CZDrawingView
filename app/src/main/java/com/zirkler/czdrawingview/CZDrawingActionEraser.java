@@ -71,6 +71,11 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
+    public boolean checkBounds(float x, float y) {
+        return false;
+    }
+
+    @Override
     public void draw(Canvas canvas) {
         canvas.drawPath(mPath, mEraserPaint);
     }

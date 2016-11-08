@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
+import android.view.View;
 
 public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
 
@@ -14,9 +15,11 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
     float mYStart = -1;
     float mXEnd = -1;
     float mYEnd = -1;
+    RectF mRect;
     private Path mPath;
     private Paint mPaint;
     private Paint mTextPaint;
+    private View.OnClickListener mOnClickListener;
 
     public CZDrawingActionMeasurementLine(Context context, Paint paint) {
         mContext = context;
@@ -91,10 +94,24 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
     }
 
     @Override
+    public boolean checkBounds(float x, float y) {
+        if (mRect == null) {
+            return false;
+        }
+
+        if (mRect.contains(x, y)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
     public void draw(Canvas canvas) {
         // draw the line
         canvas.drawPath(mPath, mPaint);
 
+        // only draw rectangle and text when user already made some movement
         if (mXEnd != -1) {
             // draw text and rectangle in the middle of the line
             String text = "130cm";
@@ -106,11 +123,11 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
 
 
             // draw a rectangle around the text
-            RectF rect = new RectF(textPosX,
+            mRect = new RectF(textPosX,
                     (textPosY - textHeight) + 8, // just some manual adjustment to center the rect around the text
                     textPosX + textWidth,
                     textPosY);
-            canvas.drawRect(rect, mPaint);
+            canvas.drawRect(mRect, mPaint);
 
             canvas.drawText(text, textPosX, textPosY, mTextPaint);
         }
