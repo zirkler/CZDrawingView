@@ -26,6 +26,11 @@
                 android:id="@+id/action_measurement_line"
                 android:title="Measurement Line"
                 app:showAsAction="ifRoom" />
+
+            <item
+                android:id="@+id/action_serialize"
+                android:title="Serialize"
+                app:showAsAction="ifRoom" />
         </menu>
 
     </item>

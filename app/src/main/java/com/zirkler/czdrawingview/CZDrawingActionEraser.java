@@ -3,24 +3,23 @@ package com.zirkler.czdrawingview;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 
 public class CZDrawingActionEraser implements CZIDrawingAction {
 
-    Path mPath;
+    CZPath mPath;
     Context mContext;
-    Paint mEraserPaint;
+    CZPaint mEraserPaint;
     float mX;
     float mY;
 
-    public CZDrawingActionEraser(Context context, Paint paint) {
+    public CZDrawingActionEraser(Context context, CZPaint paint) {
         mContext = context;
-        mPath = new Path();
+        mPath = new CZPath();
 
         if (paint == null) {
-            mEraserPaint = new Paint();
+            mEraserPaint = new CZPaint();
             mEraserPaint.setStyle(Paint.Style.STROKE);
             mEraserPaint.setAntiAlias(true);
             mEraserPaint.setStrokeWidth(40);
@@ -51,17 +50,17 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public Path getPath() {
+    public CZPath getPath() {
         return null;
     }
 
     @Override
-    public Paint getPaint() {
+    public CZPaint getPaint() {
         return mEraserPaint;
     }
 
     @Override
-    public void setPaint(Paint paint) {
+    public void setPaint(CZPaint paint) {
         mEraserPaint = paint;
     }
 
@@ -81,7 +80,7 @@ public class CZDrawingActionEraser implements CZIDrawingAction {
     }
 
     @Override
-    public CZIDrawingAction createInstance(Context context, Paint paint) {
+    public CZIDrawingAction createInstance(Context context, CZPaint paint) {
         return new CZDrawingActionEraser(context, paint);
     }
 }

@@ -4,34 +4,34 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 
-public class CZDrawingActionFreehand implements CZIDrawingAction {
+import java.io.Serializable;
 
-    Path mPath;
-    Context mContext;
-    Paint mPaint;
+public class CZDrawingActionFreehand implements CZIDrawingAction, Serializable {
+
     float mX;
     float mY;
+    private Context mContext;
+    private CZPaint mPaint;
+    private CZPath mPath;
 
-    public CZDrawingActionFreehand(Context context, Paint paint) {
+    public CZDrawingActionFreehand(Context context, CZPaint paint) {
         mContext = context;
-        mPath = new Path();
+        mPath = new CZPath();
 
         // If there isn't a paint provided, create a default paint.
         if (paint == null) {
-            mPaint = new Paint();
+            mPaint = new CZPaint();
             mPaint.setAntiAlias(true);
             mPaint.setColor(Color.RED);
             mPaint.setStyle(Paint.Style.STROKE);
             mPaint.setStrokeJoin(Paint.Join.ROUND);
             mPaint.setStrokeCap(Paint.Cap.ROUND);
-            mPaint.setStrokeWidth(CZDrawingView.dip2pixel(mContext, 5));
+            mPaint.setStrokeWidth(10);
         } else {
             mPaint = paint;
         }
     }
-
 
     @Override
     public void touchStart(float x, float y) {
@@ -53,17 +53,17 @@ public class CZDrawingActionFreehand implements CZIDrawingAction {
     }
 
     @Override
-    public Path getPath() {
+    public CZPath getPath() {
         return mPath;
     }
 
     @Override
-    public Paint getPaint() {
+    public CZPaint getPaint() {
         return null;
     }
 
     @Override
-    public void setPaint(Paint paint) {
+    public void setPaint(CZPaint paint) {
         mPaint = paint;
     }
 
@@ -83,7 +83,7 @@ public class CZDrawingActionFreehand implements CZIDrawingAction {
     }
 
     @Override
-    public CZIDrawingAction createInstance(Context context, Paint paint) {
+    public CZIDrawingAction createInstance(Context context, CZPaint paint) {
         return new CZDrawingActionFreehand(context, paint);
     }
 }

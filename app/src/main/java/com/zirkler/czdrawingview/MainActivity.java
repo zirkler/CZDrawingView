@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         mUndo        = (Button) findViewById(R.id.bttUndo);
         mRedo        = (Button) findViewById(R.id.bttRedo);
 
@@ -72,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
             EasyImage.openChooserWithDocuments(this, "Choose Background Image", 0);
         } else if (item.getItemId() == R.id.action_measurement_line) {
             mDrawingView.setCurrentDrawingAction(new CZDrawingActionMeasurementLine(this, null));
+        } else if (item.getItemId() == R.id.action_serialize) {
+            mDrawingView.serialize();
         }
         return true;
     }

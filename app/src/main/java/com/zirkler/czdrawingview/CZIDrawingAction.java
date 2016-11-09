@@ -2,8 +2,6 @@ package com.zirkler.czdrawingview;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Path;
 
 public interface CZIDrawingAction {
     public void touchStart(float x, float y);
@@ -14,13 +12,13 @@ public interface CZIDrawingAction {
 
     public void draw(Canvas canvas);
 
-    public CZIDrawingAction createInstance(Context context, Paint paint);
+    public CZIDrawingAction createInstance(Context context, CZPaint paint);
 
-    public Path getPath();
+    public CZPath getPath();
 
-    public Paint getPaint();
+    public CZPaint getPaint();
 
-    public void setPaint(Paint paint);
+    public void setPaint(CZPaint paint);
 
     public boolean isErasable();
 

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.RectF;
 import android.view.View;
 
@@ -15,19 +14,19 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
     float mYStart = -1;
     float mXEnd = -1;
     float mYEnd = -1;
-    RectF mRect;
-    private Path mPath;
-    private Paint mPaint;
-    private Paint mTextPaint;
+    private RectF mRect;
+    private CZPath mPath;
+    private CZPaint mPaint;
+    private CZPaint mTextPaint;
     private View.OnClickListener mOnClickListener;
 
-    public CZDrawingActionMeasurementLine(Context context, Paint paint) {
+    public CZDrawingActionMeasurementLine(Context context, CZPaint paint) {
         mContext = context;
-        mPath = new Path();
+        mPath = new CZPath();
 
         // If there isn't a paint provided, create a default paint.
         if (paint == null) {
-            mPaint = new Paint();
+            mPaint = new CZPaint();
             mPaint.setAntiAlias(true);
             mPaint.setColor(Color.CYAN);
             mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -39,7 +38,7 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
             mPaint = paint;
         }
 
-        mTextPaint = new Paint();
+        mTextPaint = new CZPaint();
         mTextPaint.setAntiAlias(true);
         mTextPaint.setColor(Color.BLACK);
         mTextPaint.setTextSize(CZDrawingView.dip2pixel(mContext, 15));
@@ -51,7 +50,7 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
         mYStart = y;
         mXEnd = x;
         mYEnd = y;
-        mPath = new Path();
+        mPath = new CZPath();
         mPath.moveTo(x, y);
     }
 
@@ -59,7 +58,7 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
     public void touchMove(float x, float y) {
         mXEnd = x;
         mYEnd = y;
-        mPath = new Path();
+        mPath = new CZPath();
         mPath.moveTo(mXStart, mYStart);
         mPath.lineTo(x, y);
     }
@@ -68,23 +67,23 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
     public void touchUp(float x, float y) {
         mXEnd = x;
         mYEnd = y;
-        mPath = new Path();
+        mPath = new CZPath();
         mPath.moveTo(mXStart, mYStart);
         mPath.lineTo(x, y);
     }
 
     @Override
-    public Path getPath() {
+    public CZPath getPath() {
         return mPath;
     }
 
     @Override
-    public Paint getPaint() {
+    public CZPaint getPaint() {
         return mPaint;
     }
 
     @Override
-    public void setPaint(Paint paint) {
+    public void setPaint(CZPaint paint) {
         mPaint = paint;
     }
 
@@ -134,7 +133,7 @@ public class CZDrawingActionMeasurementLine implements CZIDrawingAction {
     }
 
     @Override
-    public CZIDrawingAction createInstance(Context context, Paint paint) {
+    public CZIDrawingAction createInstance(Context context, CZPaint paint) {
         return new CZDrawingActionMeasurementLine(context, paint);
     }
 }

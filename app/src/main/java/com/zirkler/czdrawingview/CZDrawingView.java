@@ -13,6 +13,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,20 +40,21 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
     private OnItemClickCallback mClickCallback;
     private float touchDownSourceY = -1;
     private float touchDownSourceX = -1;
+    private Context mContext;
 
     public CZDrawingView(Context context) {
         super(context);
-        setup();
+        setup(context);
     }
 
     public CZDrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setup();
+        setup(context);
     }
 
     public CZDrawingView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setup();
+        setup(context);
     }
 
     public static Bitmap scaleCenterCrop(Bitmap source, int newHeight, int newWidth) {
@@ -76,7 +79,8 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
         return value;
     }
 
-    public void setup() {
+    public void setup(Context context) {
+        mContext = context;
         setFocusable(true);
         setFocusableInTouchMode(true);
         setOnTouchListener(this);
@@ -257,6 +261,19 @@ public class CZDrawingView extends ImageView implements View.OnTouchListener {
 
     public void setClickCallback(OnItemClickCallback mClickCallback) {
         this.mClickCallback = mClickCallback;
+    }
+
+    public void serialize() {
+
+        try {
+            FileOutputStream fos = mContext.openFileOutput("ser", Context.MODE_PRIVATE);
+            ObjectOutputStream os = new ObjectOutputStream(fos);
+            os.writeObject(mDrawnStuff.get(0).getPath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public interface OnItemClickCallback {
